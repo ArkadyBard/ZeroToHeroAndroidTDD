@@ -2,6 +2,7 @@ package ru.easycode.zerotoheroandroidtdd
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -16,7 +17,7 @@ class MainActivity : AppCompatActivity() {
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
         state = savedInstanceState.getSerializable(KEY) as State
-        state.apply(linearLayout, textView)
+        state.apply(linearLayout, textView, button)
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,7 +29,7 @@ class MainActivity : AppCompatActivity() {
 
         button.setOnClickListener {
             state = State.Removed
-            state.apply(linearLayout, textView)
+            state.apply(linearLayout, textView, button)
         }
     }
 
@@ -43,15 +44,16 @@ class MainActivity : AppCompatActivity() {
 }
 
 interface State : Serializable {
-    fun apply(linearLayout: LinearLayout, textView: TextView)
+    fun apply(linearLayout: LinearLayout, textView: TextView, button: Button)
 
     object Initial : State {
-        override fun apply(linearLayout: LinearLayout, textView: TextView) = Unit
+        override fun apply(linearLayout: LinearLayout, textView: TextView, button: Button) = Unit
     }
 
     object Removed: State {
-        override fun apply(linearLayout: LinearLayout, textView: TextView) {
+        override fun apply(linearLayout: LinearLayout, textView: TextView, button: Button) {
             linearLayout.removeView(textView)
+            button.isEnabled = false
         }
     }
 }
