@@ -5,8 +5,10 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
+import java.io.Serializable
 
 class MainActivity : AppCompatActivity() {
+    private var state: State = State.Initial
     private lateinit var textView: TextView
     private lateinit var button: Button
     private lateinit var linearLayout: LinearLayout
@@ -15,8 +17,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
-        isTextRemoved = savedInstanceState.getBoolean(TEXT_VISIBILITY)
-        if (!isTextRemoved) linearLayout.removeView(textView)
+        state = savedInstanceState.getSerializable(TEXT_VISIBILITY) as State
+        state.apply(linearLayout, textView)
     }
 
 
@@ -27,18 +29,31 @@ class MainActivity : AppCompatActivity() {
         textView = findViewById(R.id.titleTextView)
         button = findViewById(R.id.removeButton)
         button.setOnClickListener {
-            linearLayout.removeView(textView)
-            isTextRemoved = false
+            state = State.Removed
+            state.apply(linearLayout, textView)
         }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putBoolean(TEXT_VISIBILITY, isTextRemoved)
+        outState.putSerializable(TEXT_VISIBILITY, state)
 
     }
 
     companion object {
         const val TEXT_VISIBILITY = "title_visibility_tag"
+    }
+}
+
+interface State : Serializable {
+    fun apply(linearLayout: LinearLayout, textView: TextView)
+    object Initial : State {
+        override fun apply(linearLayout: LinearLayout, textView: TextView) = Unit
+    }
+
+    object Removed: State {
+        override fun apply(linearLayout: LinearLayout, textView: TextView) {
+            linearLayout.removeView(textView)
+        }
     }
 }
